@@ -1,0 +1,223 @@
+{% extends "registration/base.html" %}
+{% load static %}
+{% block title %} Login {% endblock %}
+
+{% block content %}
+        <!-- login area start -->
+    <div class="login-area">
+        <div class="container">
+            <div class="login-box ptb--100">
+                <form method=POST id="post-form" data-url='{% url "account:view-login" %}'>
+                    {% csrf_token %}
+                    <div class="login-form-head">
+                        <h4>Sign In</h4>
+                        <p>Hello there, Sign in and start managing your Admin Template</p>
+                    </div>
+                    {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                {% if message.tags == 'error' %}
+                                    <div  class='alert alert-danger'  role="alert">
+                                    {{ message }}
+                                    </div>
+                                {% else %}
+                                    <div  class='alert alert-{{ message.tags }}'  role="alert">
+                                    {{ message }}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if form.errors %}
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <div class="alert alert-danger">
+                                    <strong>{{ error|escape }}</strong>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                <strong>{{ error|escape }}</strong>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="login-form-body">
+                        
+                        <div class="form-gp">
+                            <label for="{{form.username.id_for_label}}">Username</label>
+                            {% comment %} <input type="text" name='username' required_id="id_username"> {% endcomment %}
+                            {{form.username}}
+                            <i class="ti-user"></i>
+                        </div>
+                        <div class="form-gp">
+                            <label for="{{form.password.id_for_label}}">Password</label>
+                            {% comment %} <input type="password" name="password" required_id="id_password"> {% endcomment %}
+                            {{form.password}}
+                            <i class="ti-lock"></i>
+                        </div>
+                        <div class="row mb-4 rmber-area">
+                            <div class="col-6">
+                                <div class="custom-control custom-checkbox mr-sm-2">
+                                    <input type="checkbox" name="remember-me" class="custom-control-input" id="customControlAutosizing">
+                                    <label class="custom-control-label" for="customControlAutosizing">Remember Me</label>
+                                </div>
+                            </div>
+                            <div class="col-6 text-right">
+                                <a href="{% url 'account:view-resetPassword' %}">Forgot Password?</a>
+                            </div>
+                        </div>
+                        <div class="submit-btn-area">
+                            <button id="form_submit" type="submit">Submit <i class="ti-arrow-right"></i></button>
+                            <div class="login-other row mt-4">
+                                <div class="col-6">
+                                    <a class="fb-login" href="{% url 'account:social:begin' 'facebook' %}">Log in with <i class="fa fa-facebook"></i></a>
+                                </div>
+                                <div class="col-6">
+                                    <a class="google-login" href="{% url 'account:social:begin' 'google-oauth2' %}">Log in with <i class="fa fa-google"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-footer text-center mt-5">
+                            <p class="text-muted">Don't have an account? <a href="{% url 'account:view-register' %}" id="signUp">Sign up</a></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- login area end -->
+
+    <!-- Modal -->
+    <div class="modal fade" id="confirmEmail"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Activate Your Account</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" id="body-content-modal">
+            
+        </div>
+        <div class="modal-footer">
+            <a class="btn btn-primary send-active" style="color:#FFF" >Activate Now</a>
+        </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $(document).ready(function(){
+
+            $("input[name=username]").keypress(function(){
+                if ( $(".error-list") ) $(".error-list").remove();
+            });
+            $("input[name=password]").keypress(function(){
+                if ( $(".error-list") ) $(".error-list").remove();
+            });
+
+            $(".close").on('click' , function(){
+                $("#body-content-modal").empty();
+            })
+            var $myform = $('#post-form');
+            $myform.submit(function(event){
+                event.preventDefault();
+                var $formData = $myform.serialize();
+                var $urlData = $myform.attr('data-url') || window.location.href;
+
+                $.ajax({
+
+                    method: "POST",
+                    url: $urlData,
+                    data: $formData,
+                    success: handleSuccess,
+                    error: handelError
+
+                });
+                function handleSuccess(data){
+                    
+                   if (data.success) 
+                        window.location.href= "{% url 'electro:home' %}";
+                   if (data.form)formError(data.form);
+                   if (data.activate){
+                       $("#body-content-modal").empty();
+                       $("#body-content-modal").append("This User isn't Active Click here to Active Now");
+                       $(".send-active").attr("href" , "{% url 'account:new-confirm-mail' username=0 %}".replace('0' , data.activate ) );
+                       $("#exampleModalLongTitle").empty();
+                       $("#exampleModalLongTitle").append("Activate Your Account");
+                       {% comment %} $(".modal-footer").attr("style" , "display:block"); {% endcomment %}
+                       $("#confirmEmail").modal({
+                           show: true,
+                        });
+                   }
+                     
+                };
+                
+                function handelError(ThrowError){
+                   $("#exampleModalLongTitle").empty();
+                   $("#exampleModalLongTitle").append("Error!");
+                   $("#body-content-modal").empty();
+                   $("#body-content-modal").append(ThrowError);
+                   $(".modal-footer").attr("style" , "display:none");
+
+                }
+
+                function formError(error){
+                    var errorbeign = ' <div class="alert alert-danger error-list">';
+                    var errorend   = '</div>';
+                    if(error.username)
+                        $(".login-form-head").after(errorbeign + error.username + errorend).fadeIn(2000);
+                    else
+                        $(".login-form-head").after(errorbeign + error.password + errorend).fadeIn(2000);
+
+                    $("input[name=password]").val("");
+                }
+            })
+            $(".send-active").on('click' , function(event){
+                event.preventDefault();
+                var $btn = $(".send-active")
+                var $btnUrl = $btn.attr("href")
+
+                $.ajax({
+                    method : "GET",
+                    url: $btnUrl,
+                    success: successActive,
+                    error: errorActive
+
+                });
+                
+                function successActive( data ){
+                    if (data.send || data.sucess){
+                        var successbeign = '<div class="alert alert-success success-list">';
+                        var successend   = '</div>';
+                        $("#confirmEmail").modal('hide');
+                        $("#body-content-modal").empty();
+                        $("input[name=password]").val("");
+                        if (data.send)
+                            $(".login-form-head").after( successbeign + data.send + successend );
+                        else
+                            $(".login-form-head").after( successbeign + data.success + successend );
+                   }
+                   if ( data.activateError || data.sendError ){
+                        var errorbeign = ' <div class="alert alert-danger error-list">';
+                        var errorend   = '</div>';
+                        if (data.activateError)
+                            $(".login-form-head").after( errorbeign + data.activateError + errorend );
+                        else
+                            $(".login-form-head").after( errorbeign + data.sendError + errorend );
+                   }  
+                }
+                function errorActive( ThrowError ){
+                    $("#exampleModalLongTitle").empty();
+                    $("#exampleModalLongTitle").append("Error!");
+                    $("#body-content-modal").append(ThrowError);
+                    $(".modal-footer").attr("style" , "display:none");
+                }
+            })
+        })
+    </script>
+{% endblock %}

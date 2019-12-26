@@ -1,0 +1,6 @@
+{% autoescape off %}
+Hi {{ user }},
+Please click on the link to confirm your registration,
+Note: the link confirmation will be destroy after 10 min.
+http://{{ domain }}{% url 'account:activate' uidb64=uid token=token %}
+{% endautoescape %}

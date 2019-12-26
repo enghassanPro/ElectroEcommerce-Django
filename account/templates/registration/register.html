@@ -1,0 +1,125 @@
+{% extends "registration/base.html" %}
+{% load static %}
+{% block title %} Register {% endblock %}
+
+{% block content %}
+        <!-- register area start -->
+    <div class="login-area">
+        <div class="container">
+            <div class="login-box ptb--100">
+                <form method="POST" action="{% url 'account:view-register' %}">
+                    {% csrf_token %}
+                    <div class="login-form-head">
+                        <h4>Sign Up</h4>
+                        <p>Hello there, Sign Up and start managing your Admin Template</p>
+                    </div>
+                    {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                {% if message.tags == 'error' %}
+                                    <div  class='alert alert-danger'  role="alert">
+                                    {{ message }}
+                                    </div>
+                                {% else %}
+                                    <div  class='alert alert-{{ message.tags }}'  role="alert">
+                                    {{ message }}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if form.errors %}
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <div class="alert alert-danger">
+                                    <strong>{{ error|escape }}</strong>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                <strong>{{ error|escape }}</strong>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="login-form-body">
+                    <div class="form-gp">
+                            <label for="{{form.first_name.id_for_label}}">First Name</label>
+                            {% comment %} <input type="text" name='firstname' id="firstnameInput" required=""> {% endcomment %}
+                            {{form.first_name}}
+                            <i class="ti-user"></i>
+                            {{form.first_name.help_text}}
+                        </div>
+                        <div class="form-gp">
+                            <label for="{{form.last_name.id_for_label}}">Last Name</label>
+                            {% comment %} <input type="text" name='firstname' id="firstnameInput" required=""> {% endcomment %}
+                            {{form.last_name}}
+                            <i class="ti-user"></i>
+                            {{form.last_name.help_text}}
+                        </div>
+                        <div class="form-gp">
+                            <label for="{{form.username.id_for_label}}">Username</label>
+                            {% comment %} <input type="text" name='firstname' id="firstnameInput" required=""> {% endcomment %}
+                            {{form.username}}
+                            <i class="ti-user"></i>
+                            {{form.username.help_text}}
+                        </div>
+                        <div class="form-gp">
+                            <label for="{{form.email.id_for_label}}">email</label>
+                            {% comment %} <input type="text" name='firstname' id="firstnameInput" required=""> {% endcomment %}
+                            {{form.email}}
+                            <i class="ti-user"></i>
+                            {{form.email.help_text}}
+                        </div>
+                        <div class="form-gp">
+                            <label for="{{form.password.id_for_label}}">Password</label>
+                            {% comment %} <input type="text" name='firstname' id="firstnameInput" required=""> {% endcomment %}
+                            {{form.password}}
+                            <i class="ti-user"></i>
+                            {% for help in form.password.help_text %}
+                                {{help}}</br>
+                            {% endfor %}
+                        </div>
+                        <div class="form-gp">
+                            <label for="{{form.password1.id_for_label}}">Confirmed Password</label>
+                            {% comment %} <input type="text" name='firstname' id="firstnameInput" required=""> {% endcomment %}
+                            {{form.password1}}
+                            <i class="ti-user"></i>
+                            {{form.password1.help_text}}
+                        </div>
+                        {% comment %}<div class="form-gp">
+                            <label for="lastNameInput">Last Name</label>
+                            <input type="text" name='lastName' id="lastNameInput" required="">
+                            <i class="ti-user"></i>
+                        </div>
+                        <div class="form-gp">
+                            <label for="usernameInput">Username</label>
+                            <input type="text" name='username' id="usernameInput" required="">
+                            <i class="ti-user"></i>
+                        </div>
+                        <div class="form-gp">
+                            <label for="emailInput">Email</label>
+                            <input type="email" name='email' id="emailInput" required="">
+                            <i class="ti-email"></i>
+                        </div>
+                        <div class="form-gp">
+                            <label for="exampleInputPassword1">Password</label>
+                            <input type="password" name="password" id="exampleInputPassword1" required="">
+                            <i class="ti-lock"></i>
+                        </div>
+                        <div class="form-gp">
+                            <label for="exampleInputPassword2">Confirmed Password</label>
+                            <input type="password" name="confirmedPassword" id="exampleInputPassword2" required="">
+                            <i class="ti-lock"></i>
+                        </div> {% endcomment %}
+                        <div class="submit-btn-area">
+                            <button id="form_submit" type="submit">Sign Up <i class="ti-arrow-right"></i></button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- login area end -->
+{% endblock %}
